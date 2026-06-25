@@ -1,11 +1,11 @@
 import {
   ParticleSystem, ParticleEmitter, CircleShape,
   FadeModifier, ScaleModifier, TurbulenceModifier,
+  VelocityModifier,
 } from "jygame";
 import { GpuParticleBackend } from "../../node_modules/jygame/particles/backends/GpuParticleBackend.js";
 import { CanvasParticleRenderer } from "../../node_modules/jygame/particles/renderers/CanvasParticleRenderer.js";
 import { SoAParticleStorage } from "../../node_modules/jygame/particles/storage/SoAParticleStorage.js";
-import { VelocityModifier } from "../../node_modules/jygame/modifiers/VelocityModifier.js";
 
 export function createSmokeDemo(w, h) {
   const renderParticle = (ctx, p) => {

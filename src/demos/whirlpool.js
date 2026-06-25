@@ -1,11 +1,10 @@
 import {
   ParticleSystem, ParticleEmitter, RingShape,
-  FadeModifier, ScaleModifier,
+  FadeModifier, ScaleModifier, AttractionModifier,
 } from "jygame";
 import { GpuParticleBackend } from "../../node_modules/jygame/particles/backends/GpuParticleBackend.js";
 import { CanvasParticleRenderer } from "../../node_modules/jygame/particles/renderers/CanvasParticleRenderer.js";
 import { SoAParticleStorage } from "../../node_modules/jygame/particles/storage/SoAParticleStorage.js";
-import { AttractionModifier } from "../../node_modules/jygame/modifiers/AttractionModifier.js";
 
 export function createWhirlpoolDemo(w, h) {
   const renderParticle = (ctx, p) => {

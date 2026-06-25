@@ -1,11 +1,11 @@
 import {
   ParticleSystem, ParticleEmitter, ConeShape,
   FadeModifier, ScaleModifier, ColorModifier,
+  WindModifier,
 } from "jygame";
 import { GpuParticleBackend } from "../../node_modules/jygame/particles/backends/GpuParticleBackend.js";
 import { CanvasParticleRenderer } from "../../node_modules/jygame/particles/renderers/CanvasParticleRenderer.js";
 import { SoAParticleStorage } from "../../node_modules/jygame/particles/storage/SoAParticleStorage.js";
-import { WindModifier } from "../../node_modules/jygame/modifiers/WindModifier.js";
 
 export function createFountainDemo(w, h) {
   const renderParticle = (ctx, p) => {
