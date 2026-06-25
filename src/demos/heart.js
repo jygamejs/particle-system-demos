@@ -62,7 +62,7 @@ export function createHeartDemo(w, h) {
       timer -= dt;
       if (timer <= 0) {
         timer = 2;
-        emitter.burst(1500);
+        emitter.burst(100);
       }
       ps.update(dt);
     },
