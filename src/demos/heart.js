@@ -26,7 +26,7 @@ export function createHeartDemo(w, h) {
 
   const ps = new ParticleSystem({
     backend: new GpuParticleBackend({
-      storage: new SoAParticleStorage({ capacity: 3000 }),
+      storage: new SoAParticleStorage({ capacity: 500 }),
       renderer: new CanvasParticleRenderer({ renderParticle }),
     }),
   });
