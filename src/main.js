@@ -70,8 +70,13 @@ class DemoManagerScene extends Scene {
     } else {
       this._chunks = [];
       const stream = this.game.canvas.captureStream(60);
+      const mime = MediaRecorder.isTypeSupported("video/webm;codecs=vp9")
+        ? "video/webm;codecs=vp9"
+        : MediaRecorder.isTypeSupported("video/webm;codecs=vp8")
+          ? "video/webm;codecs=vp8"
+          : "video/webm";
       this._recorder = new MediaRecorder(stream, {
-        mimeType: "video/webm;codecs=vp9",
+        mimeType: mime,
         videoBitsPerSecond: 50_000_000,
       });
       this._recorder.ondataavailable = (e) => {
