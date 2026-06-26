@@ -70,14 +70,16 @@ class DemoManagerScene extends Scene {
     } else {
       this._chunks = [];
       const stream = this.game.canvas.captureStream(60);
-      const mime = MediaRecorder.isTypeSupported("video/webm;codecs=vp9")
-        ? "video/webm;codecs=vp9"
-        : MediaRecorder.isTypeSupported("video/webm;codecs=vp8")
-          ? "video/webm;codecs=vp8"
-          : "video/webm";
+      const mime = MediaRecorder.isTypeSupported("video/mp4;codecs=h264")
+        ? "video/mp4;codecs=h264"
+        : MediaRecorder.isTypeSupported("video/webm;codecs=vp9")
+          ? "video/webm;codecs=vp9"
+          : MediaRecorder.isTypeSupported("video/webm;codecs=vp8")
+            ? "video/webm;codecs=vp8"
+            : "video/webm";
       this._recorder = new MediaRecorder(stream, {
         mimeType: mime,
-        videoBitsPerSecond: 50_000_000,
+        videoBitsPerSecond: 100_000_000,
       });
       this._recorder.ondataavailable = (e) => {
         if (e.data.size > 0) this._chunks.push(e.data);
@@ -86,7 +88,8 @@ class DemoManagerScene extends Scene {
         const blob = new Blob(this._chunks, { type: "video/webm" });
         const a = document.createElement("a");
         a.href = URL.createObjectURL(blob);
-        a.download = `${this.demo?.label ?? "particles"}-demo.webm`;
+        const ext = mime.startsWith("video/mp4") ? "mp4" : "webm";
+        a.download = `${this.demo?.label ?? "particles"}-demo.${ext}`;
         a.click();
         this._recorder = null;
       };
