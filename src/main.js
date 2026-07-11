@@ -13,6 +13,7 @@ import { createSmokeDemo } from "./demos/smoke.js";
 import { createFirefliesDemo } from "./demos/fireflies.js";
 import { createHeartDemo } from "./demos/heart.js";
 import { createFountainDemo } from "./demos/fountain.js";
+import { createFlockingDemo } from "./demos/flocking.js";
 import { createBoidsDemo } from "./demos/boids.js";
 
 const demos = [
@@ -30,6 +31,7 @@ const demos = [
   createFirefliesDemo,
   createHeartDemo,
   createFountainDemo,
+  createFlockingDemo,
   createBoidsDemo,
 ];
 
