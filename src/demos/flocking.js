@@ -126,12 +126,12 @@ export function createFlockingDemo(w, h) {
     obstacles.push({ x, y });
   }
 
-  const onMouseDown = (e) => {
+  const onPointerDown = (e) => {
     if (e.button === 0) addBird(e.clientX, e.clientY);
     if (e.button === 2) addObstacle(e.clientX, e.clientY);
   };
   const onContextMenu = (e) => e.preventDefault();
-  document.addEventListener("mousedown", onMouseDown);
+  document.addEventListener("pointerdown", onPointerDown);
   document.addEventListener("contextmenu", onContextMenu);
 
   return {
@@ -238,7 +238,7 @@ export function createFlockingDemo(w, h) {
       ps.render(ctx);
     },
     destroy() {
-      document.removeEventListener("mousedown", onMouseDown);
+      document.removeEventListener("pointerdown", onPointerDown);
       document.removeEventListener("contextmenu", onContextMenu);
       ps.destroy();
     },
