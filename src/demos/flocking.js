@@ -57,12 +57,7 @@ class SpatialGrid {
   }
 }
 
-const OBSTACLE_SIZE = 40;
-const OBSTACLE_AVOID_DIST = 60;
-const OBSTACLE_AVOID_WEIGHT = 300;
-
 export function createFlockingDemo(w, h) {
-  const obstacles = [];
   const grid = new SpatialGrid(PERCEPTION);
 
   const renderParticle = (ctx, p) => {
@@ -122,17 +117,10 @@ export function createFlockingDemo(w, h) {
     });
   }
 
-  function addObstacle(x, y) {
-    obstacles.push({ x, y });
-  }
-
   const onPointerDown = (e) => {
     if (e.button === 0) addBird(e.clientX, e.clientY);
-    if (e.button === 2) addObstacle(e.clientX, e.clientY);
   };
-  const onContextMenu = (e) => e.preventDefault();
   document.addEventListener("pointerdown", onPointerDown);
-  document.addEventListener("contextmenu", onContextMenu);
 
   return {
     label: "Flocking",
@@ -173,18 +161,6 @@ export function createFlockingDemo(w, h) {
           count++;
         }
 
-        let obsX = 0, obsY = 0;
-        for (let j = 0; j < obstacles.length; j++) {
-          const o = obstacles[j];
-          const dx = p.x - o.x;
-          const dy = p.y - o.y;
-          const dist = Math.sqrt(dx * dx + dy * dy);
-          if (dist > OBSTACLE_AVOID_DIST || dist < 0.001) continue;
-          const closeness = 1 - dist / OBSTACLE_AVOID_DIST;
-          obsX += (dx / dist) * closeness;
-          obsY += (dy / dist) * closeness;
-        }
-
         if (count > 0) {
           avgVx /= count;
           avgVy /= count;
@@ -193,18 +169,13 @@ export function createFlockingDemo(w, h) {
 
           const ax = sepX * SEP_WEIGHT
                    + (avgVx - p.vx) * ALIGN_WEIGHT
-                   + (avgX - p.x) * COHES_WEIGHT
-                   + obsX * OBSTACLE_AVOID_WEIGHT;
+                   + (avgX - p.x) * COHES_WEIGHT;
           const ay = sepY * SEP_WEIGHT
                    + (avgVy - p.vy) * ALIGN_WEIGHT
-                   + (avgY - p.y) * COHES_WEIGHT
-                   + obsY * OBSTACLE_AVOID_WEIGHT;
+                   + (avgY - p.y) * COHES_WEIGHT;
 
           p.vx += ax * dt;
           p.vy += ay * dt;
-        } else if (obstacles.length > 0) {
-          p.vx += obsX * OBSTACLE_AVOID_WEIGHT * dt;
-          p.vy += obsY * OBSTACLE_AVOID_WEIGHT * dt;
         }
 
         const speed = Math.sqrt(p.vx * p.vx + p.vy * p.vy);
@@ -228,18 +199,10 @@ export function createFlockingDemo(w, h) {
     render(ctx) {
       ctx.fillStyle = "#0a0a12";
       ctx.fillRect(0, 0, w, h);
-
-      ctx.fillStyle = "#ff4444";
-      for (let j = 0; j < obstacles.length; j++) {
-        const o = obstacles[j];
-        ctx.fillRect(o.x - OBSTACLE_SIZE / 2, o.y - OBSTACLE_SIZE / 2, OBSTACLE_SIZE, OBSTACLE_SIZE);
-      }
-
       ps.render(ctx);
     },
     destroy() {
       document.removeEventListener("pointerdown", onPointerDown);
-      document.removeEventListener("contextmenu", onContextMenu);
       ps.destroy();
     },
   };
