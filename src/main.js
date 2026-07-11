@@ -13,6 +13,7 @@ import { createSmokeDemo } from "./demos/smoke.js";
 import { createFirefliesDemo } from "./demos/fireflies.js";
 import { createHeartDemo } from "./demos/heart.js";
 import { createFountainDemo } from "./demos/fountain.js";
+import { createBoidsDemo } from "./demos/boids.js";
 
 const demos = [
   createConeDemo,
@@ -29,6 +30,7 @@ const demos = [
   createFirefliesDemo,
   createHeartDemo,
   createFountainDemo,
+  createBoidsDemo,
 ];
 
 class DemoManagerScene extends Scene {
