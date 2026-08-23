@@ -6,7 +6,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "jygame": "^0.8.1"
+    "jygame": "file:../jygame"
   },
   "devDependencies": {
     "vite": "^8.1.0"

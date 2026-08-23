@@ -1,7 +1,5 @@
-import { ParticleSystem } from "jygame";
-import { GpuParticleBackend } from "../../node_modules/jygame/particles/backends/GpuParticleBackend.js";
-import { CanvasParticleRenderer } from "../../node_modules/jygame/particles/renderers/CanvasParticleRenderer.js";
-import { SoAParticleStorage } from "../../node_modules/jygame/particles/storage/SoAParticleStorage.js";
+import { Particle, Input, SpatialHash } from "jygame";
+import { DemoScene } from "./base.js";
 
 const PERCEPTION = 60;
 const SEPARATION_DIST = 25;
@@ -16,194 +14,155 @@ const PALETTE = [
   [180, 120, 255], [255, 200, 80],
 ];
 
-class SpatialGrid {
-  constructor(cellSize) {
-    this.cellSize = cellSize;
-    this.cells = new Map();
-  }
-
-  clear() {
-    this.cells.clear();
-  }
-
-  insert(p) {
-    const cx = Math.floor(p.x / this.cellSize);
-    const cy = Math.floor(p.y / this.cellSize);
-    const key = cx + ':' + cy;
-    let cell = this.cells.get(key);
-    if (!cell) {
-      cell = [];
-      this.cells.set(key, cell);
-    }
-    cell.push(p);
-  }
-
-  query(x, y, radius) {
-    const results = [];
-    const minCX = Math.floor((x - radius) / this.cellSize);
-    const maxCX = Math.floor((x + radius) / this.cellSize);
-    const minCY = Math.floor((y - radius) / this.cellSize);
-    const maxCY = Math.floor((y + radius) / this.cellSize);
-    for (let cx = minCX; cx <= maxCX; cx++) {
-      for (let cy = minCY; cy <= maxCY; cy++) {
-        const cell = this.cells.get(cx + ':' + cy);
-        if (!cell) continue;
-        for (let i = 0; i < cell.length; i++) {
-          results.push(cell[i]);
-        }
-      }
-    }
-    return results;
-  }
+function createTriangleTexture(r, g, b) {
+  // Matches original flocking renderParticle: size 7
+  // moveTo(7,0) lineTo(-4.2,-3.5) lineTo(-4.2,3.5)
+  const canvas = document.createElement("canvas");
+  canvas.width = 14;
+  canvas.height = 8;
+  const ctx = canvas.getContext("2d");
+  ctx.fillStyle = `rgb(${r},${g},${b})`;
+  ctx.translate(7, 4);
+  ctx.beginPath();
+  ctx.moveTo(7, 0);
+  ctx.lineTo(-7 * 0.6, -7 * 0.5);
+  ctx.lineTo(-7 * 0.6, 7 * 0.5);
+  ctx.closePath();
+  ctx.fill();
+  return canvas;
 }
 
-export function createFlockingDemo(w, h) {
-  const grid = new SpatialGrid(PERCEPTION);
+const textures = PALETTE.map(([r, g, b]) => createTriangleTexture(r, g, b));
 
-  const renderParticle = (ctx, p) => {
-    const size = 7;
-    const angle = Math.atan2(p.vy, p.vx);
-    ctx.save();
-    ctx.translate(p.x, p.y);
-    ctx.rotate(angle);
-    ctx.fillStyle = `rgb(${p.r | 0},${p.g | 0},${p.b | 0})`;
-    ctx.beginPath();
-    ctx.moveTo(size, 0);
-    ctx.lineTo(-size * 0.6, -size * 0.5);
-    ctx.lineTo(-size * 0.6, size * 0.5);
-    ctx.closePath();
-    ctx.fill();
-    ctx.restore();
-  };
+export class FlockingDemo extends DemoScene {
+  static demoLabel = "Flocking";
 
-  const ps = new ParticleSystem({
-    backend: new GpuParticleBackend({
-      storage: new SoAParticleStorage({ capacity: 2000 }),
-      renderer: new CanvasParticleRenderer({ renderParticle }),
-    }),
-  });
-
-  let i = 0;
-  ps.emit(150, (p) => {
-    p.x = Math.random() * w;
-    p.y = Math.random() * h;
-    const a = Math.random() * Math.PI * 2;
-    const s = MIN_SPEED + Math.random() * (MAX_SPEED - MIN_SPEED);
-    p.vx = Math.cos(a) * s;
-    p.vy = Math.sin(a) * s;
-    p.life = 1e10;
-    p.maxLife = 1e10;
-    const c = PALETTE[i % PALETTE.length];
-    p.r = c[0];
-    p.g = c[1];
-    p.b = c[2];
-    i++;
-  });
-
-  function addBird(x, y) {
-    const c = PALETTE[Math.floor(Math.random() * PALETTE.length)];
-    ps.emit(1, (p) => {
-      p.x = x + (Math.random() - 0.5) * 10;
-      p.y = y + (Math.random() - 0.5) * 10;
-      const a = Math.random() * Math.PI * 2;
-      const s = MIN_SPEED + Math.random() * (MAX_SPEED - MIN_SPEED);
-      p.vx = Math.cos(a) * s;
-      p.vy = Math.sin(a) * s;
-      p.life = 1e10;
-      p.maxLife = 1e10;
-      p.r = c[0];
-      p.g = c[1];
-      p.b = c[2];
+  onEnter() {
+    this.hash = new SpatialHash(PERCEPTION);
+    this.effect = Particle.create({
+      capacity: 2000,
+      initializer: (p, i) => {
+        p.x = Math.random() * this.w;
+        p.y = Math.random() * this.h;
+        const a = Math.random() * Math.PI * 2;
+        const s = MIN_SPEED + Math.random() * (MAX_SPEED - MIN_SPEED);
+        p.vx = Math.cos(a) * s;
+        p.vy = Math.sin(a) * s;
+        p.life = 1e10;
+        p.maxLife = 1e10;
+        const idx = i % PALETTE.length;
+        p.texture = textures[idx];
+        p.width = 14;
+        p.height = 8;
+        p.originX = 0.5;
+        p.originY = 0.5;
+        p.rotation = a;
+      },
     });
+    this.effect.burst(150);
   }
 
-  const onPointerDown = (e) => {
-    if (e.button === 0) addBird(e.clientX, e.clientY);
-  };
-  document.addEventListener("pointerdown", onPointerDown);
+  update(dt) {
+    super.update(dt);
 
-  return {
-    label: "Flocking",
-    update(dt) {
-      const particles = ps.particles;
+    if (Input.pointer.pressed) {
+      const x = Input.pointer.x;
+      const y = Input.pointer.y;
+      const c = PALETTE[Math.floor(Math.random() * PALETTE.length)];
+      const tex = createTriangleTexture(c[0], c[1], c[2]);
+      this.effect.burst(1);
+      const list = this.effect.system.particles;
+      const p = list[list.length - 1];
+      if (p) {
+        p.x = x + (Math.random() - 0.5) * 10;
+        p.y = y + (Math.random() - 0.5) * 10;
+        const a = Math.random() * Math.PI * 2;
+        const s = MIN_SPEED + Math.random() * (MAX_SPEED - MIN_SPEED);
+        p.vx = Math.cos(a) * s;
+        p.vy = Math.sin(a) * s;
+        p.texture = tex;
+        p.width = 14;
+        p.height = 8;
+        p.originX = 0.5;
+        p.originY = 0.5;
+        p.rotation = a;
+      }
+    }
 
-      grid.clear();
-      for (let i = 0; i < particles.length; i++) {
-        grid.insert(particles[i]);
+    const particles = this.effect.system.particles;
+
+    this.hash.clear();
+    for (let i = 0; i < particles.length; i++) {
+      const p = particles[i];
+      this.hash.insert(p, p.x, p.y, 1, 1);
+    }
+
+    for (let i = 0; i < particles.length; i++) {
+      const p = particles[i];
+      const neighbors = this.hash.queryCircle(p.x, p.y, PERCEPTION);
+
+      let count = 0;
+      let avgVx = 0, avgVy = 0;
+      let avgX = 0, avgY = 0;
+      let sepX = 0, sepY = 0;
+
+      for (let j = 0; j < neighbors.length; j++) {
+        const n = neighbors[j];
+        if (n === p) continue;
+        const dx = p.x - n.x;
+        const dy = p.y - n.y;
+        const dist = Math.hypot(dx, dy);
+        if (dist > PERCEPTION || dist < 0.001) continue;
+        if (dist < SEPARATION_DIST) {
+          sepX += (dx / dist) / dist;
+          sepY += (dy / dist) / dist;
+        }
+        avgVx += n.vx;
+        avgVy += n.vy;
+        avgX += n.x;
+        avgY += n.y;
+        count++;
       }
 
-      for (let i = 0; i < particles.length; i++) {
-        const p = particles[i];
-        const neighbors = grid.query(p.x, p.y, PERCEPTION);
-
-        let count = 0;
-        let avgVx = 0, avgVy = 0;
-        let avgX = 0, avgY = 0;
-        let sepX = 0, sepY = 0;
-
-        for (let j = 0; j < neighbors.length; j++) {
-          const n = neighbors[j];
-          if (n === p) continue;
-          const dx = p.x - n.x;
-          const dy = p.y - n.y;
-          const dist = Math.sqrt(dx * dx + dy * dy);
-          if (dist > PERCEPTION || dist < 0.001) continue;
-
-          if (dist < SEPARATION_DIST) {
-            sepX += (dx / dist) / dist;
-            sepY += (dy / dist) / dist;
-          }
-
-          avgVx += n.vx;
-          avgVy += n.vy;
-          avgX += n.x;
-          avgY += n.y;
-          count++;
-        }
-
-        if (count > 0) {
-          avgVx /= count;
-          avgVy /= count;
-          avgX /= count;
-          avgY /= count;
-
-          const ax = sepX * SEP_WEIGHT
-                   + (avgVx - p.vx) * ALIGN_WEIGHT
-                   + (avgX - p.x) * COHES_WEIGHT;
-          const ay = sepY * SEP_WEIGHT
-                   + (avgVy - p.vy) * ALIGN_WEIGHT
-                   + (avgY - p.y) * COHES_WEIGHT;
-
-          p.vx += ax * dt;
-          p.vy += ay * dt;
-        }
-
-        const speed = Math.sqrt(p.vx * p.vx + p.vy * p.vy);
-        if (speed > MAX_SPEED) {
-          p.vx = (p.vx / speed) * MAX_SPEED;
-          p.vy = (p.vy / speed) * MAX_SPEED;
-        } else if (speed < MIN_SPEED && speed > 0.01) {
-          p.vx = (p.vx / speed) * MIN_SPEED;
-          p.vy = (p.vy / speed) * MIN_SPEED;
-        }
-
-        p.x += p.vx * dt;
-        p.y += p.vy * dt;
-
-        if (p.x < 0) p.x += w;
-        if (p.x > w) p.x -= w;
-        if (p.y < 0) p.y += h;
-        if (p.y > h) p.y -= h;
+      if (count > 0) {
+        avgVx /= count;
+        avgVy /= count;
+        avgX /= count;
+        avgY /= count;
+        const ax = sepX * SEP_WEIGHT + (avgVx - p.vx) * ALIGN_WEIGHT + (avgX - p.x) * COHES_WEIGHT;
+        const ay = sepY * SEP_WEIGHT + (avgVy - p.vy) * ALIGN_WEIGHT + (avgY - p.y) * COHES_WEIGHT;
+        p.vx += ax * dt;
+        p.vy += ay * dt;
       }
-    },
-    render(ctx) {
-      ctx.fillStyle = "#0a0a12";
-      ctx.fillRect(0, 0, w, h);
-      ps.render(ctx);
-    },
-    destroy() {
-      document.removeEventListener("pointerdown", onPointerDown);
-      ps.destroy();
-    },
-  };
+
+      const speed = Math.hypot(p.vx, p.vy);
+      if (speed > MAX_SPEED) {
+        p.vx = (p.vx / speed) * MAX_SPEED;
+        p.vy = (p.vy / speed) * MAX_SPEED;
+      } else if (speed < MIN_SPEED && speed > 0.01) {
+        p.vx = (p.vx / speed) * MIN_SPEED;
+        p.vy = (p.vy / speed) * MIN_SPEED;
+      }
+
+      p.x += p.vx * dt;
+      p.y += p.vy * dt;
+      p.rotation = Math.atan2(p.vy, p.vx);
+
+      if (p.x < 0) p.x += this.w;
+      if (p.x > this.w) p.x -= this.w;
+      if (p.y < 0) p.y += this.h;
+      if (p.y > this.h) p.y -= this.h;
+    }
+  }
+
+  render(ctx) {
+    ctx.fillStyle = "#0a0a12";
+    ctx.fillRect(0, 0, this.w, this.h);
+    super.render(ctx);
+  }
+
+  onExit() {
+    this.effect?.destroy();
+  }
 }
+
