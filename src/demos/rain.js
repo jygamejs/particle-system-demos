@@ -1,4 +1,4 @@
-import { Particle, RectangleShape, FadeModifier, ScaleModifier, ColorModifier, VelocityModifier, WindModifier } from "jygame";
+import { Particle, RectangleShape, FadeModifier, ScaleModifier, ColorModifier, VelocityModifier, WindModifier, CircleParticleVisual } from "jygame";
 import { DemoScene } from "./base.js";
 
 export class RainDemo extends DemoScene {
@@ -25,6 +25,8 @@ export class RainDemo extends DemoScene {
       initializer: (p) => {
         p.width = 1;
         p.height = 8 + Math.random() * 8;
+        p.originX = 0;
+        p.originY = 0;
       },
     });
     this.rain.play();
@@ -33,6 +35,7 @@ export class RainDemo extends DemoScene {
       rate: 100,
       lifetime: [0.3, 0.6],
       shape: new RectangleShape({ width: this.w, height: 2 }),
+      visual: new CircleParticleVisual(),
       modifiers: [
         new VelocityModifier({ drag: 4 }),
         new FadeModifier({ mode: "out", easing: "quadOut" }),

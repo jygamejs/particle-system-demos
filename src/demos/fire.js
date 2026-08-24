@@ -1,4 +1,4 @@
-import { Particle, ConeShape, FadeModifier, ScaleModifier, ColorModifier, VelocityModifier, TurbulenceModifier } from "jygame";
+import { Particle, ConeShape, FadeModifier, ScaleModifier, ColorModifier, VelocityModifier, TurbulenceModifier, CircleParticleVisual } from "jygame";
 import { DemoScene } from "./base.js";
 
 export class FireDemo extends DemoScene {
@@ -15,6 +15,7 @@ export class FireDemo extends DemoScene {
         speed: [120, 200],
         spread: 0.2,
       }),
+      visual: new CircleParticleVisual(),
       modifiers: [
         new VelocityModifier({ drag: 0.3 }),
         new TurbulenceModifier({ strength: 60, frequency: 2 }),

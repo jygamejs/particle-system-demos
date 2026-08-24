@@ -1,4 +1,4 @@
-import { Particle, RectangleShape, FadeModifier, TurbulenceModifier } from "jygame";
+import { Particle, RectangleShape, FadeModifier, TurbulenceModifier, CircleParticleVisual } from "jygame";
 import { DemoScene } from "./base.js";
 
 export class FirefliesDemo extends DemoScene {
@@ -9,6 +9,7 @@ export class FirefliesDemo extends DemoScene {
       rate: 10,
       lifetime: [5, 10],
       shape: new RectangleShape({ width: this.w, height: this.h }),
+      visual: new CircleParticleVisual(),
       modifiers: [
         new TurbulenceModifier({ strength: 20, frequency: 0.4, amplitude: 0.6 }),
         new FadeModifier({ mode: "in-out", easing: "linear" }),

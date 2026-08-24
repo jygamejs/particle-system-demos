@@ -1,4 +1,4 @@
-import { Particle, CircleShape, FadeModifier, ScaleModifier, ColorModifier, VelocityModifier, WindModifier } from "jygame";
+import { Particle, CircleShape, FadeModifier, ScaleModifier, ColorModifier, VelocityModifier, WindModifier, CircleParticleVisual } from "jygame";
 import { DemoScene } from "./base.js";
 
 export class ExplosionDemo extends DemoScene {
@@ -8,6 +8,7 @@ export class ExplosionDemo extends DemoScene {
     this.boom = Particle.create({
       rate: 0,
       shape: new CircleShape({ radius: 8, direction: "outward", speed: [300, 600], spread: 0.3 }),
+      visual: new CircleParticleVisual(),
       modifiers: [
         new VelocityModifier({ drag: 0.6 }),
         new WindModifier({ y: 40 }),
@@ -26,6 +27,7 @@ export class ExplosionDemo extends DemoScene {
     this.debris = Particle.create({
       rate: 0,
       shape: new CircleShape({ radius: 5, direction: "outward", speed: [500, 800] }),
+      visual: new CircleParticleVisual(),
       modifiers: [
         new VelocityModifier({ drag: 0.3 }),
         new WindModifier({ y: 80 }),

@@ -1,4 +1,4 @@
-import { Particle, CircleShape, FadeModifier, ScaleModifier, VelocityModifier, WindModifier } from "jygame";
+import { Particle, CircleShape, FadeModifier, ScaleModifier, VelocityModifier, WindModifier, CircleParticleVisual } from "jygame";
 import { DemoScene } from "./base.js";
 
 const PALETTE = [
@@ -15,6 +15,7 @@ export class FireworksDemo extends DemoScene {
     this.burst = Particle.create({
       rate: 0,
       shape: new CircleShape({ radius: 4, direction: "outward", speed: [200, 400], spread: 0.4 }),
+      visual: new CircleParticleVisual(),
       modifiers: [
         new VelocityModifier({ drag: 0.8 }),
         new WindModifier({ y: 60 }),
@@ -35,6 +36,7 @@ export class FireworksDemo extends DemoScene {
     this.sparkle = Particle.create({
       rate: 0,
       shape: new CircleShape({ radius: 2 }),
+      visual: new CircleParticleVisual(),
       modifiers: [
         new FadeModifier({ mode: "out", easing: "quadOut" }),
         new ScaleModifier({ from: 1, to: 0, easing: "linear" }),

@@ -1,4 +1,4 @@
-import { Particle, RectangleShape, FadeModifier, VelocityModifier, TurbulenceModifier, WindModifier } from "jygame";
+import { Particle, RectangleShape, FadeModifier, VelocityModifier, TurbulenceModifier, WindModifier, CircleParticleVisual } from "jygame";
 import { DemoScene } from "./base.js";
 
 export class SnowDemo extends DemoScene {
@@ -16,6 +16,7 @@ export class SnowDemo extends DemoScene {
         speed: [60, 120],
         spread: 0.3,
       }),
+      visual: new CircleParticleVisual(),
       modifiers: [
         new VelocityModifier({ drag: 0.1 }),
         new TurbulenceModifier({ strength: 30, frequency: 0.8 }),
